@@ -45,7 +45,16 @@
 ;; Second section. Plating with write-file-* hooks, Overwriting writetimestamps.
 (add-hook 'local-write-file-hooks 'update-writetimestamps)
 
-;;WRITETIMESTAMP((23:58:30))
+(defvar write-format "%c %N"
+  "*Format in use when overwriting the writetimestamps. (c.f. 'format-time-string).")
+
+(defvar write-prefix  ";;WRITETIMESTAMP(("
+  "*Used prefix for a writetimestamp.")
+
+(defvar write-suffix "))"
+  "*Used suffix for a writetimestamp.")
+
+;;WRITETIMESTAMP((Mon Nov  5 22:07:40 2012 527921000))
 
 (defun update-writetimestamps ()
   "Find writetimestamps and update them with the current time."
@@ -54,13 +63,57 @@
       (save-match-data
         (widen)
         (goto-char (point-min))
-        (while (search-forward (concat "WRITETIMESTAMP" "((") nil t)
+        (while (search-forward write-prefix nil t)
           (let ((start (point)))
-            (search-forward "))")
-            (delete-region start (- (point) 2))
+            (search-forward write-suffix)
+            (delete-region start (match-beginning 0))
             (goto-char start)
-            (insert-time))))))
+            (insert (format-time-string
+                     write-format
+                     (current-time))))))))
   nil)
 
-;;WRITETIMESTAMP((23:58:30))
+;;WRITETIMESTAMP((Mon Nov  5 22:07:40 2012 527921000))
 
+;; Second version, with regex.
+(defun update-writetimestamps ()
+  "Find writetimestamps and update them with the current time."
+  (save-excursion
+    (save-restriction
+      (save-match-data
+        (widen)
+        (goto-char (point-min))
+        (while (re-search-forward (concat "^" (regexp-quote write-prefix)) nil t)
+          (let ((start (point))
+                (eol-pos (save-excursion
+                           (end-of-line)
+                           (point))))
+            (if (re-search-forward (concat (regexp-quote write-suffix) "$") eol-pos t)
+                (progn
+                  (delete-region start (match-beginning 0))
+                  (goto-char start)
+                  (insert (format-time-string
+                           write-format
+                           (current-time))))))))))
+  nil)
+
+;;WRITETIMESTAMP((Mon Nov  5 22:07:40 2012 527921000))
+
+;; Third version, using all the regex power.
+(defun update-writetimestamps ()
+  "Find writetimestamps and update them with the current time."
+  (save-excursion
+    (save-restriction
+      (save-match-data
+        (widen)
+        (goto-char (point-min))
+        (let ((time-stamp (format-time-string write-format (current-time))))
+          (while (re-search-forward (concat
+                                     (concat "^" (regexp-quote write-prefix))
+                                     "\\(.*\\)"
+                                     (concat (regexp-quote write-suffix) "$"))
+                                    nil t)
+            (replace-match time-stamp t t nil 1))))))
+  nil)
+
+;;WRITETIMESTAMP((Mon Nov  5 22:07:40 2012 527921000))
