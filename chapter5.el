@@ -62,6 +62,7 @@
 (defvar modify-suffix "))"
   "*Used suffix for a modifytimestamp.")
 
+;;MODIFYTIMESTAMP((Tue Nov  6 22:12:52 2012 681071000))
 
 (defvar last-modification-timestamp nil
   "Time when the last modification occured.")
@@ -90,5 +91,21 @@
   "If the current buffer has been modified then update write timestamps."
   (if last-modification-timestamp
       (update-modifystamps last-modification-timestamp)))
+
+(provide 'timestamp)
+
+;; Local Variables:
+;; insert-time-format: "%X"
+;; insert-date-format: "%x"
+;; write-format: "%c %N"
+;; write-prefix:  ";;WRITETIMESTAMP(("
+;; write-suffix: "))"
+;; modify-format: "%c %N"
+;; modify-prefix:  ";;MODIFYTIMESTAMP(("
+;; modify-suffix: "))"
+;; eval: (add-hook 'local-write-file-hooks 'update-writetimestamps-on-modified-buf nil t)
+;; last-modification-timestamp: nil
+;; eval: (add-hook 'after-change-functions 'store-last-modification-timestamp nil t)
+;; End:
 
 

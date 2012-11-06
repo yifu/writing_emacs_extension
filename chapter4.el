@@ -154,6 +154,7 @@
 ;; Second approach. for store the last modifytimestamps before saving
 ;; the buffer.
 (add-hook 'local-write-file-hooks 'update-writetimestamps-on-modified-buf nil t)
+
 (defun update-writetimestamps-on-modified-buf ()
   "If the current buffer has been modified then update write timestamps."
   (if (buffer-modified-p)
