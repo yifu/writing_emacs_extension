@@ -57,3 +57,18 @@
                   (beginning-of-line)
                   (point)))))
     (fill-region left end nil nil t)))
+
+(add-to-list 'load-path (pwd))
+(require 'limited)
+(defun myrefill (start end len)
+  "Refill a paragraph at point."
+  (let ((left (if (zerop len)
+                  start
+                (limited-save-excursion
+                  (goto-char start)
+                  (forward-line -1)
+                  (beginning-of-line)
+                  (point)))))
+    (fill-region left end nil nil t)))
+
+(myrefill (point) (+ (point) 3) 0)
