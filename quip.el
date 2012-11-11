@@ -1,44 +1,31 @@
 
-(defvar quip-mode-hook nil
-  "*List of functions to call when entering Quip mode.")
-
-(defvar quip-mode-map nil
-  "Keymap for quip major mode.")
-
-(if quip-mode-map
-    nil
-  (setq quip-mode-map (make-sparse-keymap))
-  (define-key quip-mode-map (kbd "C-x [") 'backward-quip)
-  (define-key quip-mode-map (kbd "C-x ]") 'forward-quip)
-  (define-key quip-mode-map (kbd "C-x n q") 'narrow-to-quip)
-  (define-key quip-mode-map (kbd "C-c w") 'what-quip))
+(defalias 'backward-quip 'backward-page)
+(defalias 'forward-quip 'forward-page)
+(defalias 'narrow-to-quip 'narrow-to-page)
+(defalias 'what-quip 'what-page)
 
 ;; (defvar quip-mode-syntax-table (make-syntax-table)
 ;;  "Syntax table for quip major mode.")
 
 ;; (defvar quip-mode-abbrev-table (make-abbrev-table))
+(require 'derived)
 
-(defun quip-mode ()
+(define-derived-mode quip-mode text-mode "Quip"
   "Run the quip major mode.
 Special commands:
 \\{quip-mode-map}"
-  (interactive "")
-  (kill-all-local-variables)
-
-  (setq major-mode 'quip-mode)
-  (setq mode-name "Quip")
-
   (make-local-variable 'paragraph-start)
   (make-local-variable 'paragraph-separate)
   (make-local-variable 'page-delimiter)
 
   (setq paragraph-start "%%\\|[ \t\n\^L]")
   (setq paragraph-separate "%%$\\|[ \t\^L]*$]")
-  (setq page-delimiter "^%%$")
+  (setq page-delimiter "^%%$"))
 
-  (use-local-map quip-mode-map)
-
-  (run-hooks 'quip-mode-hook))
+(define-key quip-mode-map (kbd "C-x [") 'backward-quip)
+(define-key quip-mode-map (kbd "C-x ]") 'forward-quip)
+(define-key quip-mode-map (kbd "C-x n q") 'narrow-to-quip)
+(define-key quip-mode-map (kbd "C-c w") 'what-quip)
 
 (defun count-quips ()
   "Count the quips in the buffer."
@@ -47,6 +34,6 @@ Special commands:
     (save-restriction
       (widen)
       (goto-char (point-min))
-      (count-matches "^%%$"))))
+      (message "%S" (count-matches "^%%$")))))
 
 (provide 'quip)
