@@ -7,11 +7,11 @@
       (error "make-crossword: size must be 3 or greater."))
   (make-matrix size size nil))
 
-(make-crossword 0) 
-(make-crossword 1) 
-(make-crossword 2) 
+;(make-crossword 0) 
+;(make-crossword 1) 
+;(make-crossword 2) 
 (make-crossword 3) 
-(make-crossword 4) 
+;(make-crossword 4) 
 (make-crossword 11)
 
 (defsubst crossword-size (crossword)
@@ -62,3 +62,24 @@ c
 
 (crossword-cousin--set c 8 7 'toto)
 (crossword-ref c 2 3) ;;toto
+
+
+(defun crossword-store-letter (crossword row column letter)
+  "Store LETTER into the CROSSWORD at ROW - COLUMN position."
+  (crossword--set crossword row column letter)
+  (if (numberp (crossword-cousin-ref crossword row column))
+      nil
+    (crossword-cousin--set crossword row column 'letter)))
+
+(defun crossword-store-block (crossword row column)
+  "Store a block into the CROSSWORD at ROW - COLUMN position."
+  (crossword--set crossword row column 'block)
+  (crossword-cousin--set crossword row column 'block))
+
+(defun crossword-clear-cell (crossword row column)
+  "Clear a cell in CROSSWORD at ROW - COLUMN position, following NYT crosswords rules."
+  (if (numberp (crossword-cousin-ref crossword row column))
+      (crossword--set crossword row column 'letter)
+    (crossword-set crossword row column nil)
+    (crossword-cousin-set crossword row column nil)))
+
